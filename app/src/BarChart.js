@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import Table from "react-bootstrap/Table";
 
 
 class BarChart extends Component {
@@ -45,25 +46,26 @@ class BarChart extends Component {
     	var playerGoals, playerAssists, playerPoints;
     	console.log(team.roster);
     	
-    	
-    	team.roster.forEach((val, idx) => {
-    		if (val.Goals > maxGoals) {
-    			maxGoals = val.Goals;
-    			playerGoals = val;
-    		}
+    	if (team.roster) {
+	    	team.roster.forEach((val, idx) => {
+	    		if (val.Goals > maxGoals) {
+	    			maxGoals = val.Goals;
+	    			playerGoals = val;
+	    		}
 
-    		if (val.Assists > maxAssist) {
-    			maxAssist = val.Assists;
-    			playerAssists = val;
-    		}
+	    		if (val.Assists > maxAssist) {
+	    			maxAssist = val.Assists;
+	    			playerAssists = val;
+	    		}
 
-    		if (val.Points > maxPoints) {
-    			maxPoints = val.Points;
-    			playerPoints = val;
-    		}
-    	});
+	    		if (val.Points > maxPoints) {
+	    			maxPoints = val.Points;
+	    			playerPoints = val;
+	    		}
+	    	});
+	    }
 
-    	console.log(playerGoals, playerAssists, playerPoints);
+    	//console.log(playerGoals, playerAssists, playerPoints);
     	return {G: playerGoals, A: playerAssists, P: playerPoints};
     }
 
@@ -265,7 +267,7 @@ class BarChart extends Component {
 					<div id="player">
 						<button type="button" onClick={this.onButtonClick}>X</button>						
 						<h5>Top Players on the Team</h5>
-						<table>
+						<Table striped bordered hover size="sm">
 							<thead>
 								<tr>
 									<th>Goals</th>
@@ -285,7 +287,7 @@ class BarChart extends Component {
 									<td>{this.state.display.P.Points}</td>
 								</tr>
 							</tbody>
-						</table>
+						</Table>
 					</div>
 					: null
 				}

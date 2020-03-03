@@ -139,11 +139,9 @@ class PieChart extends Component {
 					}
 				}
 			})
-			.attr("font-size", "8px");
-
-
-
+			.attr("font-size", "8px");			
 	}
+	
 
 	render() {
 		return(<div/>);

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import Table from 'react-bootstrap/Table';
+import "./PlayerShow.css";
 
 
 
@@ -27,14 +29,14 @@ class PlayerShow extends Component {
 	}
 
 	render() {
-		console.log(this.state.data);
+		//console.log(this.state.data);
 		return(
 			<div>
 				{this.state.data ?
 					<div id="player"> 
 						<h3>{this.state.data.data.Name}</h3>
 						<h5>{this.state.data.data.Position}</h5>
-						<table>
+						<Table striped bordered hover size="sm">
 							<thead>
 								<tr>
 									<th>GP</th>
@@ -51,7 +53,7 @@ class PlayerShow extends Component {
 									<th>{this.state.data.data.Points}</th>
 								</tr>
 							</tbody>
-						</table>
+						</Table>
 					</div>
 					: null
 				}

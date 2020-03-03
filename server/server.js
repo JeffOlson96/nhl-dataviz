@@ -18,18 +18,6 @@ var corsOptions = {
 	optionsSuccessStatus: 200
 };
 
-/*
-var config = {
-	user: 'sa',
-	password: 'windows#42',
-	server: 's-wdbaintern01',
-	database: 'dbHockeyInfo'
-};
-
-*/
-
-
-
 var config = {
 	user: 'sa',
 	password: 'windows#42',
@@ -81,7 +69,15 @@ app.get('/teams', function(req, res) {
 	});
 });
 
+/*
+app.get('/sql/login', function(req, res) {
+	sql.connect(config2, function(err) {
+		var request = new sql.Request();
 
+
+	});
+});
+*/
 
 
 var server = app.listen(5000, function() {
@@ -111,7 +107,7 @@ app.post('/sql/user', function(req, res) {
 			const request = new sql.Request(transaction);
 			//console.log(req.headers);					
 			
-			request.input('username', sql.NVarChar(sql.MAX), req.body.team);
+			request.input('username', sql.NVarChar(sql.MAX), req.body.username);
 			request.input('password', sql.NVarChar(sql.MAX), req.body.password);
 			request.input('email', sql.NVarChar(sql.MAX), req.body.email);
 			request.input('time', sql.DateTime, new Date());
@@ -122,9 +118,51 @@ app.post('/sql/user', function(req, res) {
 				}
 				transaction.commit(err => {
 					console.log("Transaction complete");
-					res.send({status: 'Success'});
+					res.send({status: true, user: req.body.username, login: true});
 				});
 			});
 		});
 	});
 });
+
+
+app.post('/sql/login', function(req, res) {
+	res.header("Access-Control-Allow-Origin", "*");
+
+	const pool = new sql.ConnectionPool({
+		user: 'sa',
+		password: 'windows#42',
+		server: 'localhost',
+		database: 'nodelogin'
+	});
+
+	pool.connect()
+		.then(function() {
+			const transaction = new sql.Transaction(pool);
+			transaction.begin(err => {
+				const request = new sql.Request(transaction);
+				console.log(req.body.username, req.body.password);
+				request.input('username', sql.NVarChar(sql.MAX), req.body.username);
+				//request.input('email', sql.NVarChar(sql.MAX), req.body.email);
+				request.input('password', sql.NVarChar(sql.MAX), req.body.password);
+
+				request.query("select * from Accounts where username = @username and password = @password", function(err, result) {
+					console.log("res: ", result);
+					if (err) {
+						throw err;
+						res.send({login: false});
+					}
+					else if (result.recordset.length) {
+						transaction.commit(err => {
+							console.log('logged in');
+							res.send({login: true});
+						});
+					}
+					else {
+						res.send({login: false})
+					}
+				});
+			});
+		});
+});
+

@@ -4,6 +4,9 @@ import './BaseApp.css';
 import * as d3 from 'd3';
 import BarChart from "./BarChart.js";
 import PlayerShow from "./PlayerShow.js";
+import Form from "react-bootstrap/Form";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
 
 let lastScrollY = 0;
 let ticking = 0;
@@ -23,7 +26,9 @@ class BaseApp extends Component {
       style: null,
       transform: null,
       teams: null,
-      sentItems: []
+      sentItems: [],
+      status: false,
+      login: false
     };
 
     this.handleDataChange = this.handleDataChange.bind(this);
@@ -31,6 +36,8 @@ class BaseApp extends Component {
     this.handleBack = this.handleBack.bind(this);
     this.handleScroll = this.handleScroll.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.formatTeamData = this.formatTeamData.bind(this);
+    this.handleNewUser = this.handleNewUser.bind(this);
   }
 
   
@@ -38,8 +45,8 @@ class BaseApp extends Component {
   componentDidMount() {
     // When component mounts, use fetch to get data
     // this causes a cors error cause the origins are the same
-    // http://s-wdbaintern01:5000/
-    // http://localhost:5000
+    // http://s-wdbaintern01:5000/ <--- used because I was running on ISD server
+    // http://localhost:5000/ <--- if server is running on same machine
     // two fetches for different routes set up in server
 
     fetch("http://s-wdbaintern01:5000/players")
@@ -57,7 +64,9 @@ class BaseApp extends Component {
         return res.json();
       })
       .then(res => {
-        this.setState({teams: res})
+        console.log(res);
+        this.setState({teams: res.recordset});
+        this.formatTeamData()
       });
 
     //window.addEventListener('scroll', this.handleScroll, true);
@@ -101,6 +110,11 @@ class BaseApp extends Component {
     });
   };
   
+  formatTeamData() {
+    const scope = this;
+    var tmpData = this.state.teams;
+
+  }
 
   // data preprocessing
   formatData() {
@@ -172,12 +186,38 @@ class BaseApp extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     var scope = this;    
+    fetch('http://s-wdbaintern01:5000/sql/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: scope.refs.username.value,
+        password: scope.refs.password.value,
+        //email: scope.refs.email.value
+      }),
+      headers: {"Content-Type": "application/json"}
+    })
+    .then(res => {
+      return res.json()
+    })
+    .then(body => {
+      console.log(body.login);
+      if (body.login) {
+        this.setState({login: body.login});
+      }
+      else {
+        this.setState({signup: true});
+      }
+    });
+  };
+  
+  handleNewUser = (e) => {
+    e.preventDefault();
+    var scope = this;
     fetch('http://s-wdbaintern01:5000/sql/user', {
       method: 'POST',
       body: JSON.stringify({
-        team: scope.refs.team.value,
-        password: scope.refs.password.value,
-        email: scope.refs.email.value
+          username: scope.refs.username.value,
+          password: scope.refs.password.value,
+          email: scope.refs.email.value 
       }),
       headers: {"Content-Type": "application/json"}
     })
@@ -186,8 +226,10 @@ class BaseApp extends Component {
     })
     .then(body => {
       console.log(body);
+      this.setState({login: body.login});
     });
   }
+  
 
   render() {
     //console.log(this.state.data);
@@ -198,45 +240,107 @@ class BaseApp extends Component {
     */// 3 components that are conditionally rendered
       // submit for practicing post
     return(
-      <div id="highContainer" transform={this.state.transform}>
-        <form onSubmit={this.handleSubmit}>
-          <input type="text" placeholder="team" ref="team"/>
-          <input type="email" placeholder="email" ref="email"/>
-          <input type="password" placeholder="password" ref="password"/>
-          <input type="submit" />
-        </form>      
-        <div id="baseContainer">
-          <h3>NHL Player Data 17-18</h3>
-          <div id="playerInfo">
-            {this.state.show ?
-              <PlayerShow
-                data={this.state.popup}
-              />
-              : null
-            }
+      <div id="highContainer" transform={this.state.transform}>      
+        {this.state.login ?
+          <div id="baseContainer">
+            <h3>NHL Player Data 17-18</h3>
+            <div id="playerInfo">
+              {this.state.show ?
+                <PlayerShow
+                  data={this.state.popup}
+                />
+                : null
+              }
+            </div>
+            <div id="pie">
+              <h5>Number of Goals</h5>
+              {this.state.send ?
+                <PieChart
+                  data={this.state.send}
+                  onChangeValue={this.handleDataChange}
+                  onBackClick={this.handleBack}
+                />
+                : null
+              }
+            </div>
+            <div id="bar" width="50" height="50">
+              {this.state.send ?
+                <div id="Bar">
+                  <BarChart
+                    data={this.state.send}
+                    onChangeValue={this.handleDataChange}
+                    onBackClick={this.handleBack}
+                  />
+                </div>
+                : null
+              }
+            </div>
           </div>
-          <div id="pie">
-            <h5>Number of Goals</h5>
-            {this.state.send ?
-              <PieChart
-                data={this.state.send}
-                onChangeValue={this.handleDataChange}
-                onBackClick={this.handleBack}
-              />
-              : null
-            }
-          </div>
-          <div id="bar" width="50" height="50">
-            {this.state.send ?
-              <BarChart
-                data={this.state.send}
-                onChangeValue={this.handleDataChange}
-                onBackClick={this.handleBack}
-              />
-              : null
-            }
-          </div> 
-        </div>        
+          : <div id="formLogin" textAnchor="center">
+              {!this.state.signup ?
+                <Form onSubmit={this.handleSubmit} size="sm">
+                  <Form.Group controlId="formBasicCheck">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control type="text" placeholder="username" ref="username" size="sm" width="50%"/>                  
+                    <Form.Control type="password" placeholder="password" ref="password" size="sm" width="50%"/>
+                    <input type="submit" />
+                  </Form.Group>
+                </Form>
+                : <div id="signup" textAnchor="center">
+                    <Form onSubmit={this.handleNewUser} size="sm">
+                      <Form.Row>
+                        <Form.Group as={Col} controlId="formGridEmail">
+                          <Form.Label>Email</Form.Label>
+                          <Form.Control type="email" placeholder="Enter email" ref="email" />
+                        </Form.Group>
+
+                        <Form.Group as={Col} controlId="formGridPassword">
+                          <Form.Label>Password</Form.Label>
+                          <Form.Control type="password" placeholder="Password" ref="password"/>
+                        </Form.Group>
+
+                        <Form.Group controlId="formGridAddress1">
+                          <Form.Label>username</Form.Label>
+                          <Form.Control placeholder="username" ref="username"/>
+                        </Form.Group>
+
+                      </Form.Row>
+                      
+                      <Form.Group controlId="formGridAddress2">
+                        <Form.Label>Address</Form.Label>
+                        <Form.Control placeholder="1234 Main St" ref="address"/>
+                      </Form.Group>
+
+                      <Form.Row>
+                        <Form.Group as={Col} controlId="formGridCity">
+                          <Form.Label>City</Form.Label>
+                          <Form.Control ref="city"/>
+                        </Form.Group>
+
+                        <Form.Group as={Col} controlId="formGridState">
+                          <Form.Label>State</Form.Label>
+                          <Form.Control placeholder="State" ref="state">                            
+                          </Form.Control>
+                        </Form.Group>
+
+                        <Form.Group as={Col} controlId="formGridZip">
+                          <Form.Label>Zip</Form.Label>
+                          <Form.Control ref="zip"/>
+                        </Form.Group>
+                      </Form.Row>
+
+                      <Form.Group id="formGridCheckbox">
+                        <Form.Check type="checkbox" label="Check me out" />
+                      </Form.Group>
+
+                      <Button variant="primary" type="submit">
+                        Submit
+                      </Button>
+                    </Form>
+                  </div>
+              }
+            </div>
+        }       
       </div>
     )
   }
