@@ -36,7 +36,7 @@ class PlayerShow extends Component {
 					<div id="player"> 
 						<h3>{this.state.data.data.Name}</h3>
 						<h5>{this.state.data.data.Position}</h5>
-						<Table striped bordered hover size="sm">
+						<Table striped bordered hover size="sm" variant="dark">
 							<thead>
 								<tr>
 									<th>GP</th>

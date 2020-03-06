@@ -1,3 +1,13 @@
-#player {
-	transform: translate(0, 600);
+div#div-top-players {
+	transform: translate(0, 0);
+}
+
+div#div-avg-goals {
+	transform: translate(1100px, -175px);
+	font-family: "Lucida Console";
+	font-size: 15px;
+}
+
+p {
+	/*transform: translate(100px, 0px);*/
 }

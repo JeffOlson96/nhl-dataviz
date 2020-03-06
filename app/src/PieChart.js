@@ -65,9 +65,11 @@ class PieChart extends Component {
 			  .style("text-anchor", "middle")
 			  .text("BACK")
 			  .on("click", function(d) {
-			  	d3.select("svg").remove();
-			  	scope.props.onBackClick(scope.state.clicked.data.parent);
+			  	if (scope.state.clicked) {
+			  		d3.select("svg").remove();
+			  		scope.props.onBackClick(scope.state.clicked.data.parent);
 			  	//scope.drawChart(scope.props.data);
+			  	}
 			  });
 
 		var g = svg.selectAll(".arc").data(pie(data)).enter().append("g").attr("class", "arc");

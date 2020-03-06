@@ -1,0 +1,11 @@
+div#Header {
+	text-align: center;
+	font-size: 15px;
+	color: black;
+	background:#4284f5;
+	font-family: "Lucida Console";
+	background-image: url("./TeamLogo.png");
+	background-size: 25%;
+	background-repeat: no-repeat;
+	
+}

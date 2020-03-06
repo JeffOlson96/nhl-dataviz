@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
-import Table from "react-bootstrap/Table";
-
+//import Table from "react-bootstrap/Table";
+import RenderTable from "./RenderTableComp.js";
+import "./BarChart.css";
 
 class BarChart extends Component {
 
@@ -11,11 +12,13 @@ class BarChart extends Component {
 			data: null,
 			send: null,
 			clicked: null,
-			display: null
+			display: null,
+      averageLeagueGoals: 0
 		};
 
 		this.drawChart = this.drawChart.bind(this);
-		this.onButtonClick = this.onButtonClick.bind(this);
+		//this.onButtonClick = this.onButtonClick.bind(this);
+    this.findAverage = this.findAverage.bind(this);
 	}
 
 	componentDidMount() {
@@ -89,7 +92,7 @@ class BarChart extends Component {
     dataMax = getMax();
     dataMin = getMin();
     
-    console.log(dataMax, ":", dataMin);
+    //console.log(dataMax, ":", dataMin);
     let diff = dataMax - dataMin;
     if (diff > 2000) {
       multiplyFactor = 0.1;
@@ -147,6 +150,37 @@ class BarChart extends Component {
     	} 
     }));
 
+
+    /*
+    svg.append("g")
+       .attr("transform", "translate(0," + 550 + ")")
+       .call(d3.axisBottom(x))
+       .selectAll("text")
+       .attr("transform", "translate(-10,0)rotate(-45)")
+       .style("text-anchor", "end");
+
+    svg.append("g").call(d3.axisLeft(y));
+
+    svg.selectAll('.bars')
+       .data(data)
+       .enter()
+       .append("rect")
+       .attr("x", function(d) { return x(d); })
+       .attr("width", x.bandwidth())
+       .attr("fill", "#69b3a2")
+       .attr("height", function(d) { return 550 - y(0); })
+       .attr("y", function(d) { return y(0); });
+
+
+    svg.selectAll("rect")
+       .transition()
+       .duration(800)
+       .attr("y", function(d) {return y(d); })
+       .attr("height", function(d) { return 550 - y(d); })
+       .delay(function(d,i) { return(i*100); });
+
+    */
+
     
     var bars = svg.selectAll('.bars')
         .data(data)
@@ -201,11 +235,14 @@ class BarChart extends Component {
 				    	}
             });
         })
-        .on("click", function(d) {          
-					var sendDisplay = findTopPlayers(d);
-					//var sendDisplay = [goalPlayer, assistPlayer, pointsPlayer];
-					console.log(sendDisplay);
-					scope.setState({display: sendDisplay});
+        .on("click", function(d) {
+          if (d.roster) {        
+  					var sendDisplay = findTopPlayers(d);
+  					//var sendDisplay = [goalPlayer, assistPlayer, pointsPlayer];
+  					console.log(sendDisplay);
+  					scope.setState({display: sendDisplay});
+            scope.props.onChangeValue(sendDisplay);
+          }
         });
 
 
@@ -222,10 +259,10 @@ class BarChart extends Component {
         .attr("font-size", "8px")
         .attr("transform", (d,i) => { 
         	if (d.key) {
-        		return "translate( " + (((i * 15) + 9) + margin) + "," + (/*(d.key.length * 5) + */ 570) + ")rotate(-90)";
+        		return "translate( " + (((i * 15) + 9) + margin) + "," + (570) + ")rotate(-90)";
         	}
         	else if (d.Name) {
-        		return "translate( " + (((i * 15) + 9) + margin) + "," + (/*(d.Name.length * 5) + */ 650) + ")rotate(-90)";
+        		return "translate( " + (((i * 15) + 9) + margin) + "," + (650) + ")rotate(-90)";
         	}
         });
     
@@ -250,48 +287,38 @@ class BarChart extends Component {
 	          }	
         })
         .attr("font-size", "8px");
-
+    
     //svg.append("g").call(d3.axisLeft(y)).attr("font-size", "7px");
-    svg.attr("transform", "translate(550, -750)");    
+    svg.attr("transform", "translate(550, -750)");
+    scope.findAverage(data);
 	}
 
-	onButtonClick = (e) => {
-		this.setState({display: null});
-	}
+  findAverage(arr) {
+    console.log("arr: ", arr);
+    var total = 0;
+    var avg;
+    if (arr.length) {
+      arr.forEach((val) => {
+        if (val.value) {
+          total += val.value
+        }
+        else if (val.Goals) {
+          total += val.Goals
+        }
+      });
+      avg = total / arr.length;
+    }
+    this.setState({averageLeagueGoals: avg});
+  }
+
+	
 
 	render() {
 		//console.log(this.state.display);
 		return(
-			<div>
-				{this.state.display ?
-					<div id="player">
-						<button type="button" onClick={this.onButtonClick}>X</button>						
-						<h5>Top Players on the Team</h5>
-						<Table striped bordered hover size="sm">
-							<thead>
-								<tr>
-									<th>Goals</th>
-									<th>Assists</th>
-									<th>Points</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>									
-									<td>{this.state.display.G.Name}</td>
-									<td>{this.state.display.A.Name}</td>
-									<td>{this.state.display.P.Name}</td>
-								</tr>
-								<tr>									
-									<td>{this.state.display.G.Goals}</td>
-									<td>{this.state.display.A.Assists}</td>
-									<td>{this.state.display.P.Points}</td>
-								</tr>
-							</tbody>
-						</Table>
-					</div>
-					: null
-				}
-
+			<div id="div-avg-goals">
+        <p>Average Goals</p>
+				<p>{this.state.averageLeagueGoals}</p>
 			</div>
 		);
 	}

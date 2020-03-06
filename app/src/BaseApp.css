@@ -1,5 +1,6 @@
 .BaseApp {
   text-align: center;
+  font-family: "Lucida Console";
 }
 
 .BaseApp-logo {
@@ -35,4 +36,21 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+h3 {
+  font-family: "Lucida Console";
+}
+div#bar {
+  width: 0px;
+  height: 0px;
+}
+
+div#highContainer {
+  background-color: #cccccc;
+}
+
+
+div#top-players-team {
+  transform: translate(600px, -200px);
 }

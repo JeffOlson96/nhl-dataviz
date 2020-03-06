@@ -7,6 +7,9 @@ import PlayerShow from "./PlayerShow.js";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
+import TeamComp from "./TeamComparison.js";
+import LeagueLeadersComp from "./LeagueLeadersComp.js";
+import RenderTableComponent from "./RenderTableComp.js";
 
 let lastScrollY = 0;
 let ticking = 0;
@@ -28,7 +31,9 @@ class BaseApp extends Component {
       teams: null,
       sentItems: [],
       status: false,
-      login: false
+      login: false,
+      userData: "",
+      barClick: null
     };
 
     this.handleDataChange = this.handleDataChange.bind(this);
@@ -64,7 +69,7 @@ class BaseApp extends Component {
         return res.json();
       })
       .then(res => {
-        console.log(res);
+        //console.log(res);
         this.setState({teams: res.recordset});
         this.formatTeamData()
       });
@@ -113,6 +118,7 @@ class BaseApp extends Component {
   formatTeamData() {
     const scope = this;
     var tmpData = this.state.teams;
+    //console.log(tmpData);
 
   }
 
@@ -181,6 +187,14 @@ class BaseApp extends Component {
 
 
 
+  handleBarClick = (e) => {
+    //e.preventDefault();
+    var scope = this;
+    console.log("bar click: ", e);
+    this.setState({barClick: e});
+
+  };
+
 
   // handle submit for user login, post request to insert into sql database
   handleSubmit = (e) => {
@@ -199,9 +213,9 @@ class BaseApp extends Component {
       return res.json()
     })
     .then(body => {
-      console.log(body.login);
+      console.log(body);
       if (body.login) {
-        this.setState({login: body.login});
+        this.setState({login: body.login, userData: body.userData});
       }
       else {
         this.setState({signup: true});
@@ -217,7 +231,9 @@ class BaseApp extends Component {
       body: JSON.stringify({
           username: scope.refs.username.value,
           password: scope.refs.password.value,
-          email: scope.refs.email.value 
+          email: scope.refs.email.value,
+          team: scope.refs.team.value,
+          player: scope.refs.player.value
       }),
       headers: {"Content-Type": "application/json"}
     })
@@ -231,19 +247,14 @@ class BaseApp extends Component {
   }
   
 
-  render() {
-    //console.log(this.state.data);
-    /*
-    if (this.state.data) {
-      this.formatData();
-    }
-    */// 3 components that are conditionally rendered
+  render() {    
+    /// 3 components that are conditionally rendered
       // submit for practicing post
     return(
       <div id="highContainer" transform={this.state.transform}>      
         {this.state.login ?
           <div id="baseContainer">
-            <h3>NHL Player Data 17-18</h3>
+            <h3>{"Hello " + this.state.userData[0].username + "!"}</h3>           
             <div id="playerInfo">
               {this.state.show ?
                 <PlayerShow
@@ -262,16 +273,32 @@ class BaseApp extends Component {
                 />
                 : null
               }
+              </div>
+              <div id="bar">             
+              {this.state.send ?                
+                <BarChart
+                  data={this.state.send}
+                  onChangeValue={this.handleBarClick}
+                  onBackClick={this.handleBack}
+                />                
+                : null
+              }
             </div>
-            <div id="bar" width="50" height="50">
-              {this.state.send ?
-                <div id="Bar">
-                  <BarChart
-                    data={this.state.send}
-                    onChangeValue={this.handleDataChange}
-                    onBackClick={this.handleBack}
-                  />
-                </div>
+            <div id="top-players-league">
+              {this.state.teams ?                
+                <LeagueLeadersComp
+                  data={this.state.send}
+                  
+                />                
+                : null
+              }
+            </div>
+            <div id="top-players-team">
+              {this.state.barClick ?                
+                <RenderTableComponent
+                  data={this.state.barClick}
+                  
+                />                
                 : null
               }
             </div>
@@ -279,12 +306,14 @@ class BaseApp extends Component {
           : <div id="formLogin" textAnchor="center">
               {!this.state.signup ?
                 <Form onSubmit={this.handleSubmit} size="sm">
-                  <Form.Group controlId="formBasicCheck">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control type="text" placeholder="username" ref="username" size="sm" width="50%"/>                  
-                    <Form.Control type="password" placeholder="password" ref="password" size="sm" width="50%"/>
-                    <input type="submit" />
-                  </Form.Group>
+                  <div className="col-3">
+                    <Form.Group controlId="formBasicCheck">
+                      <Form.Label>Username</Form.Label>
+                      <Form.Control type="text" placeholder="username" ref="username" size="sm" width="50%"/>                  
+                      <Form.Control type="password" placeholder="password" ref="password" size="sm" width="50%"/>
+                      <input type="submit" />
+                    </Form.Group>
+                  </div>
                 </Form>
                 : <div id="signup" textAnchor="center">
                     <Form onSubmit={this.handleNewUser} size="sm">
@@ -307,9 +336,14 @@ class BaseApp extends Component {
                       </Form.Row>
                       
                       <Form.Group controlId="formGridAddress2">
-                        <Form.Label>Address</Form.Label>
-                        <Form.Control placeholder="1234 Main St" ref="address"/>
+                        <Form.Label>Team</Form.Label>
+                        <Form.Control placeholder="Hartford Whalers" ref="team"/>
                       </Form.Group>
+
+                      <Form.Group as={Col} controlId="formGridZip">
+                          <Form.Label>Player</Form.Label>
+                          <Form.Control placeholder="Wayne Gretzky" ref="player"/>
+                        </Form.Group>
 
                       <Form.Row>
                         <Form.Group as={Col} controlId="formGridCity">
@@ -322,11 +356,7 @@ class BaseApp extends Component {
                           <Form.Control placeholder="State" ref="state">                            
                           </Form.Control>
                         </Form.Group>
-
-                        <Form.Group as={Col} controlId="formGridZip">
-                          <Form.Label>Zip</Form.Label>
-                          <Form.Control ref="zip"/>
-                        </Form.Group>
+                        
                       </Form.Row>
 
                       <Form.Group id="formGridCheckbox">
