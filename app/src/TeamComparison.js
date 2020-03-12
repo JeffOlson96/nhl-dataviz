@@ -44,7 +44,7 @@ class TeamComp extends Component {
 			return b.Points - a.Points;
 		});
 		console.log("team: ", tmpData);
-
+		/*
 		tmpData.forEach((val, idx) => {
 			if (val.Division === "Atlantic") {
 				tmpSend.Atlantic.push(val);
@@ -59,9 +59,9 @@ class TeamComp extends Component {
 				tmpSend.Pacific.push(val);
 			}
 		});
-
-		console.log(tmpSend);
-		this.setState({send: tmpSend});
+		*/
+		//console.log(tmpSend);
+		this.setState({send: tmpData});
 
 	}
 
@@ -70,25 +70,8 @@ class TeamComp extends Component {
 		console.log(e.target.innerHTML);
 
 	};
-
-
-
-	render() {
-		return(
-			<div id="TeamComp" className="table-responsive-sm">				
-					{this.state.send ?
-						<Table striped bordered hover variant="dark" size="sm" width="25%">
-							<thead>
-								<tr>
-									<th>Division</th>
-									<th>Teamname</th>
-									<th>Wins</th>
-									<th>Losses</th>
-									<th>Points</th>
-								</tr>
-							</thead>
-							<tbody>
-								{this.state.send.Atlantic.map((team) => {
+	/*
+	{this.state.send.Atlantic.map((team) => {
 										return (
 											<tr key={team.Teamname} onClick={this.handleTableClick}>
 												<td>{team.Division}</td>
@@ -99,7 +82,7 @@ class TeamComp extends Component {
 											</tr>
 										);
 									})
-								},
+								}
 								{this.state.send.Metropolitan.map((team) => {
 										return (
 											<tr key={team.Teamname}>
@@ -111,7 +94,7 @@ class TeamComp extends Component {
 											</tr>
 										);
 									})
-								},
+								}
 								{this.state.send.Central.map((team) => {
 										return (
 											<tr key={team.Teamname}>
@@ -123,7 +106,7 @@ class TeamComp extends Component {
 											</tr>
 										);
 									})
-								},
+								}
 								{this.state.send.Pacific.map((team) => {
 										return (
 											<tr key={team.Teamname}>
@@ -132,6 +115,38 @@ class TeamComp extends Component {
 												<td>{team.Wins}</td>
 												<td>{team.Losses}</td>
 												<td>{team.Points}</td>
+											</tr>
+										);
+									})
+								}
+
+	*/
+
+	render() {
+		return(
+			<div id="TeamComp" className="col-6">				
+					{this.state.data ?
+						<Table striped bordered hover variant="dark" size="sm" width="25%">
+							<thead>
+								<tr>
+									<th>Division</th>
+									<th>Teamname</th>
+									<th>Wins</th>
+									<th>Losses</th>
+									<th>Points</th>
+									<th>Average Goals</th>
+								</tr>
+							</thead>
+							<tbody>
+								{this.state.data.map((team) => {
+										return (
+											<tr key={team.team_info.Teamname}>
+												<td>{team.team_info.Division}</td>
+												<td>{team.team_info.Teamname}</td>
+												<td>{team.team_info.Wins}</td>
+												<td>{team.team_info.Losses}</td>
+												<td>{team.team_info.Points}</td>
+												<td>{team.AvgGoals}</td>
 											</tr>
 										);
 									})

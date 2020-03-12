@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import RenderTable from "./RenderTableComp.js";
 import "./BarChart.css";
 
+
 class BarChart extends Component {
 
 	constructor(props) {
@@ -39,7 +40,7 @@ class BarChart extends Component {
 	}
 
 	drawChart(data) {
-		console.log("BarChart: ", data);
+		//console.log("BarChart: ", data);
     var multiplyFactor = 1.0;
 
     var dataMax, dataMin;
@@ -262,7 +263,7 @@ class BarChart extends Component {
         		return "translate( " + (((i * 15) + 9) + margin) + "," + (570) + ")rotate(-90)";
         	}
         	else if (d.Name) {
-        		return "translate( " + (((i * 15) + 9) + margin) + "," + (650) + ")rotate(-90)";
+        		return "translate( " + (((i * 15) + 9) + margin) + "," + (620) + ")rotate(-90)";
         	}
         });
     
@@ -294,7 +295,7 @@ class BarChart extends Component {
 	}
 
   findAverage(arr) {
-    console.log("arr: ", arr);
+    //console.log("arr: ", arr);
     var total = 0;
     var avg;
     if (arr.length) {

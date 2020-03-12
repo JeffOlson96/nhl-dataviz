@@ -33,8 +33,9 @@ class PlayerShow extends Component {
 		return(
 			<div>
 				{this.state.data ?
-					<div id="player"> 
+					<div id="player" className='col-3'> 
 						<h3>{this.state.data.data.Name}</h3>
+						<h4>{this.state.data.data.Team}</h4>
 						<h5>{this.state.data.data.Position}</h5>
 						<Table striped bordered hover size="sm" variant="dark">
 							<thead>

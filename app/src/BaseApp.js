@@ -10,6 +10,10 @@ import Button from "react-bootstrap/Button";
 import TeamComp from "./TeamComparison.js";
 import LeagueLeadersComp from "./LeagueLeadersComp.js";
 import RenderTableComponent from "./RenderTableComp.js";
+import RosterComp from "./RosterComponent.js";
+import FindAvg from "./findAverage.js";
+
+
 
 let lastScrollY = 0;
 let ticking = 0;
@@ -32,8 +36,9 @@ class BaseApp extends Component {
       sentItems: [],
       status: false,
       login: false,
-      userData: "",
-      barClick: null
+      userData: null,
+      barClick: null,
+      allPlayers: null
     };
 
     this.handleDataChange = this.handleDataChange.bind(this);
@@ -54,6 +59,11 @@ class BaseApp extends Component {
     // http://localhost:5000/ <--- if server is running on same machine
     // two fetches for different routes set up in server
 
+
+    // this is bad, we shouldn't be getting the data before the user is authenticated
+    // have to move to componentDidUpdate() when the user is logged in, then call fetch to 
+    // retrieve data
+    
     fetch("http://s-wdbaintern01:5000/players")
       .then(res => { 
         return res.json();
@@ -73,7 +83,7 @@ class BaseApp extends Component {
         this.setState({teams: res.recordset});
         this.formatTeamData()
       });
-
+      
     //window.addEventListener('scroll', this.handleScroll, true);
   }
 
@@ -82,7 +92,29 @@ class BaseApp extends Component {
   }
 
   componentDidUpdate() {
+    /*
+    if (this.state.login === true) {
+      fetch("http://s-wdbaintern01:5000/players")
+        .then(res => { 
+          return res.json();
+        })
+        .then(res => {
+          //
+          this.setState({data: res.recordset});
+          this.formatData();
+        });
 
+      fetch("http://s-wdbaintern01:5000/teams")
+        .then(res => {
+          return res.json();
+        })
+        .then(res => {
+          //console.log(res);
+          this.setState({teams: res.recordset});
+          this.formatTeamData()
+        });
+    }
+    */
   }
 
 
@@ -119,7 +151,27 @@ class BaseApp extends Component {
     const scope = this;
     var tmpData = this.state.teams;
     //console.log(tmpData);
+    /*
+    this.state.teams.forEach((team) => {
+      //console.log(FindAvg(team));
+      FindAvg(team);
+      //team.AvgGoals = FindAvg(team);
+      console.log(team);
+    });
+    */
 
+
+    scope.state.send.forEach((val, idx) => {
+      
+      val.team_info = scope.state.teams[idx]
+      val.AvgGoals = FindAvg(val);
+      //console.log(val, idx);
+    });
+
+    scope.state.send.sort((a,b) => {
+      return b.team_info.Points - a.team_info.Points;
+    });
+    scope.setState({teams: scope.state.send});
   }
 
   // data preprocessing
@@ -167,12 +219,12 @@ class BaseApp extends Component {
         p.key = p["H-Ref Name"];
       })
     })
-    this.setState({send: tmpSend, save: tmpSend});
+    this.setState({send: tmpSend, save: tmpSend, allPlayers: this.state.data});
   }
 
   // callback function for change in data to propogate to sub Components
   handleDataChange = (e) => {
-    console.log("Changing: ", e);    
+    //console.log("Changing: ", e);    
     if (e.data.roster) {
       this.setState({send: e.data.roster});
     }
@@ -190,7 +242,7 @@ class BaseApp extends Component {
   handleBarClick = (e) => {
     //e.preventDefault();
     var scope = this;
-    console.log("bar click: ", e);
+    //console.log("bar click: ", e);
     this.setState({barClick: e});
 
   };
@@ -213,7 +265,7 @@ class BaseApp extends Component {
       return res.json()
     })
     .then(body => {
-      console.log(body);
+      //console.log("Login: ", body.userData);
       if (body.login) {
         this.setState({login: body.login, userData: body.userData});
       }
@@ -232,7 +284,7 @@ class BaseApp extends Component {
           username: scope.refs.username.value,
           password: scope.refs.password.value,
           email: scope.refs.email.value,
-          team: scope.refs.team.value,
+          UserTeam: scope.refs.team.value,
           player: scope.refs.player.value
       }),
       headers: {"Content-Type": "application/json"}
@@ -241,8 +293,8 @@ class BaseApp extends Component {
       return res.json()
     })
     .then(body => {
-      console.log(body);
-      this.setState({login: body.login});
+      //console.log("User: ", body.userData);
+      this.setState({login: body.login, userData: body.userData});
     });
   }
   
@@ -250,11 +302,12 @@ class BaseApp extends Component {
   render() {    
     /// 3 components that are conditionally rendered
       // submit for practicing post
+    //console.log(this.state);
     return(
       <div id="highContainer" transform={this.state.transform}>      
         {this.state.login ?
           <div id="baseContainer">
-            <h3>{"Hello " + this.state.userData[0].username + "!"}</h3>           
+            <h3>{"Hello " + this.state.userData.username + "!"}</h3>           
             <div id="playerInfo">
               {this.state.show ?
                 <PlayerShow
@@ -285,10 +338,19 @@ class BaseApp extends Component {
               }
             </div>
             <div id="top-players-league">
-              {this.state.teams ?                
+              {this.state.send ?                
                 <LeagueLeadersComp
                   data={this.state.send}
-                  
+                  players={this.state.allPlayers}
+                />                
+                : null
+              }
+            </div>            
+            <div id="userteam-roster">
+              {this.state.userData ?                
+                <RosterComp
+                  userdata={this.state.userData}
+                  data={this.state.send}              
                 />                
                 : null
               }
@@ -298,6 +360,14 @@ class BaseApp extends Component {
                 <RenderTableComponent
                   data={this.state.barClick}
                   
+                />                
+                : null
+              }
+            </div>
+            <div id="team-comparison">
+              {this.state.teams ?                
+                <TeamComp
+                  data={this.state.teams}                  
                 />                
                 : null
               }
@@ -337,7 +407,7 @@ class BaseApp extends Component {
                       
                       <Form.Group controlId="formGridAddress2">
                         <Form.Label>Team</Form.Label>
-                        <Form.Control placeholder="Hartford Whalers" ref="team"/>
+                        <Form.Control placeholder="SJS" ref="team"/>
                       </Form.Group>
 
                       <Form.Group as={Col} controlId="formGridZip">
@@ -357,12 +427,7 @@ class BaseApp extends Component {
                           </Form.Control>
                         </Form.Group>
                         
-                      </Form.Row>
-
-                      <Form.Group id="formGridCheckbox">
-                        <Form.Check type="checkbox" label="Check me out" />
-                      </Form.Group>
-
+                      </Form.Row>                      
                       <Button variant="primary" type="submit">
                         Submit
                       </Button>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import teamColors from "./teamColors.json";
 
 
 class PieChart extends Component {
@@ -9,7 +10,8 @@ class PieChart extends Component {
 		this.state = {
 			data: null,
 			send: null,
-			clicked: null
+			clicked: null,
+			depth: 0
 		};
 
 		this.drawChart = this.drawChart.bind(this);
@@ -34,9 +36,18 @@ class PieChart extends Component {
 
 	drawChart(data) {
 		var scope = this;
-		console.log("pie: ", this.state);
+		//console.log("pie Colors: ", teamColors);
 		var radius = 200;
+		//console.log(d3.schemeSet3);
+		var colorSet = [];
 
+		teamColors.forEach((team) => {
+			//console.log(team.name ,team.colors.hex[team.colors.hex.length-1]);
+			var tmpColor = "#" + team.colors.hex[team.colors.hex.length-1];
+			//console.log(tmpColor);
+			colorSet.push(tmpColor);
+		});
+		//console.log(colorSet);
 		var color = d3.scaleOrdinal().domain(data).range(d3.schemeSet3);
 
 		var arc = d3.arc().outerRadius(radius - 10).innerRadius(radius - 100);
@@ -65,9 +76,10 @@ class PieChart extends Component {
 			  .style("text-anchor", "middle")
 			  .text("BACK")
 			  .on("click", function(d) {
-			  	if (scope.state.clicked) {
+			  	if (scope.state.clicked && scope.state.depth > 0) {
 			  		d3.select("svg").remove();
 			  		scope.props.onBackClick(scope.state.clicked.data.parent);
+			  		scope.setState({depth: scope.state.depth-=1});
 			  	//scope.drawChart(scope.props.data);
 			  	}
 			  });
@@ -88,7 +100,7 @@ class PieChart extends Component {
 			.on("click", function(d) {
 				//console.log(d);
 				scope.props.onChangeValue(d);
-				scope.setState({clicked: d});
+				scope.setState({clicked: d, depth: scope.state.depth+=1});
 				if (d.data.roster) {
 					d3.selectAll(".pie").remove();
 					scope.drawChart(d.data.roster);
