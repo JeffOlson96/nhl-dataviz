@@ -114,9 +114,12 @@ class BarChart extends Component {
     const svg = d3.select("#bar")
                   .append("svg")
                   .attr("class", "bar")
-                  .attr("width", 800)
+                  .attr("width", 800)                  
                   .attr("height", 800);
+                  //.append("g");
                   
+    
+
     
     // using scale band for bars
     var x = d3.scaleBand()
@@ -150,9 +153,29 @@ class BarChart extends Component {
     		return d.Name;
     	} 
     }));
+    
 
 
     /*
+
+    //animation that works
+    
+
+    
+    var x = d3.scaleBand()
+        .range([0, 800])
+        .domain(data.map(function(d) {
+          //console.log(d);
+          if (d.key) {
+            return d.key;
+          }
+          else if (d.Name) {
+            return d.Name;
+          }
+        }))
+        .padding(0.2);
+
+    
     svg.append("g")
        .attr("transform", "translate(0," + 550 + ")")
        .call(d3.axisBottom(x))
@@ -160,27 +183,52 @@ class BarChart extends Component {
        .attr("transform", "translate(-10,0)rotate(-45)")
        .style("text-anchor", "end");
 
+    var y = d3.scaleLinear()
+        .domain([0, 500])
+        .range([800, 0]);
+
+
+
     svg.append("g").call(d3.axisLeft(y));
 
-    svg.selectAll('.bars')
+    svg.selectAll('bars')
        .data(data)
        .enter()
        .append("rect")
-       .attr("x", function(d) { return x(d); })
-       .attr("width", x.bandwidth())
-       .attr("fill", "#69b3a2")
-       .attr("height", function(d) { return 550 - y(0); })
+       .attr("x", function(d) {
+          console.log(d);
+          if (d.key) {
+            return x(d.key);
+          }
+          else if (d.Name) {
+            return x(d.Name);
+          }
+        })
+       .attr("width", (d, i) => x.bandwidth())
+       .attr("fill", "#03fc24")
+       .attr("height", function(d) { return 800 - y(0); })
        .attr("y", function(d) { return y(0); });
 
 
     svg.selectAll("rect")
        .transition()
        .duration(800)
-       .attr("y", function(d) {return y(d); })
-       .attr("height", function(d) { return 550 - y(d); })
+       .attr("y", function(d) {
+          console.log(d);
+          if (d.value){
+            return y(d.value);
+          }
+          else if (d.Goals) {
+            return y(d.Goals);
+          }
+       })
+       .attr("height", function(d) { 
+          if (d.value) { return 550 - y(d.value); }
+          else if (d.Goals) { return 550 - y(d.Goals);} 
+        })
        .delay(function(d,i) { return(i*100); });
-
     */
+    
 
     
     var bars = svg.selectAll('.bars')
@@ -189,7 +237,7 @@ class BarChart extends Component {
         .append("g");
 
 
-    bars.append("rect")
+    bars.append("rect")        
         .attr("class", "bars")
         .attr("x", (d, i) => (i * 15) + margin)
         .attr("y", (d, i) => {
@@ -245,7 +293,7 @@ class BarChart extends Component {
             scope.props.onChangeValue(sendDisplay);
           }
         });
-
+    
 
     bars.append("text")
         .attr("class", "label")

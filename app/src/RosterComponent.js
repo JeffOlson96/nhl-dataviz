@@ -44,7 +44,7 @@ class RosterComp extends Component {
 	render() {
 		//console.log(this.state.user, this.state.team, this.state.mounted);
 		return(
-			<div className="col-3">
+			<div className="col-2">
 				{this.state.mounted ?
 					<div id="inner_container">
 						<h3>{this.state.team.key}</h3>

@@ -52,6 +52,13 @@ class LeagueLeadersComp extends Component {
 		
 		var tmpPlayers = this.state.allPlayers;
 
+		
+
+		// 
+		topPoints = tmpPlayers.sort((a,b) => {
+			return b.Points - a.Points;
+		}).slice(0,10);
+
 		topGoals = tmpPlayers.sort((a,b) => {
 			return b.Goals - a.Goals;
 		}).slice(0,10);
@@ -59,11 +66,6 @@ class LeagueLeadersComp extends Component {
 		topAssists = tmpPlayers.sort((a,b) => {
 			return b.Assists - a.Assists;
 		}).slice(0,10);
-
-		topPoints = tmpPlayers.sort((a,b) => {
-			return b.Points - a.Points;
-		}).slice(0,10);
-
 
 		//console.log(topGoals, topAssists, topPoints);
 
@@ -84,7 +86,7 @@ class LeagueLeadersComp extends Component {
 				{this.state.mounted ?
 					<div className="col-3">
 						<h4>League Leaders</h4>
-						<Table striped bordered hover variant="dark" size="sm" width="25%">
+						<Table striped bordered hover variant="dark" size="sm" width="25%" onClick={this.props.onChange}>
 							<thead>
 								<tr>									
 									<th colSpan="2">Top Goals</th>

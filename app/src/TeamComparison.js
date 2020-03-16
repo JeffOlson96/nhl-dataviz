@@ -14,7 +14,8 @@ class TeamComp extends Component {
 				"Metropolitan": [],
 				"Central": [],
 				"Pacific": []
-			}
+			},
+			mounted: false
 		};
 
 		this.formatData = this.formatData.bind(this);
@@ -39,7 +40,7 @@ class TeamComp extends Component {
 	formatData(data) {
 		
 		var tmpData = data;
-		var tmpSend = this.state.send;
+		//var tmpSend = this.state.send;
 		tmpData.sort((a,b) => {
 			return b.Points - a.Points;
 		});
@@ -61,8 +62,11 @@ class TeamComp extends Component {
 		});
 		*/
 		//console.log(tmpSend);
-		this.setState({send: tmpData});
 
+		//implicit check to see if data actually exists
+		if (tmpData.length) {
+			this.setState({send: tmpData, mounted: true});
+		}
 	}
 
 	handleTableClick = (e) => {
@@ -125,7 +129,7 @@ class TeamComp extends Component {
 	render() {
 		return(
 			<div id="TeamComp" className="col-6">				
-					{this.state.data ?
+					{this.state.mounted ?
 						<Table striped bordered hover variant="dark" size="sm" width="25%">
 							<thead>
 								<tr>
@@ -153,7 +157,7 @@ class TeamComp extends Component {
 								}
 							</tbody>
 						</Table>
-						: null
+						: "Loading..."
 					}				
 			</div>
 

@@ -1,6 +1,8 @@
 .BaseApp {
   text-align: center;
   font-family: "Lucida Console";
+  width: 3000px;
+  height: 3000px;
 }
 
 .BaseApp-logo {
@@ -41,6 +43,14 @@
 h3 {
   font-family: "Lucida Console";
 }
+
+div#root {
+  width: 100%;
+  height: 100%;
+  /*resize: both;
+  overflow: auto;*/
+}
+
 div#bar {
   width: 0px;
   height: 0px;
@@ -50,19 +60,30 @@ div#highContainer {
   background-color: #cccccc;
 }
 
+div#baseContainer {
+  /*background-color: #cccccc;*/
+  width: 3000px;
+  height: 3000px;
+}
+
+
 
 div#top-players-team {
-  transform: translate(600px, -1600px);
+  transform: translate(800px, -1400px);
 }
 
 
 div#userteam-roster {
-  transform: translate(1300px, -1000px);
+  transform: translate(1300px, -800px);
 }
 
 
 div#team-comparison {
-  transform: translate(500px, -1500px);
+  transform: translate(0px, -900px);
   position: absolute;
 
+}
+
+h3#team-comp-head {
+  transform: translate(0px, 100px);
 }

@@ -41,6 +41,8 @@ class BaseApp extends Component {
       allPlayers: null
     };
 
+
+    // better to keep separate ? or should I combine ?
     this.handleDataChange = this.handleDataChange.bind(this);
     this.formatData = this.formatData.bind(this);
     this.handleBack = this.handleBack.bind(this);
@@ -48,6 +50,7 @@ class BaseApp extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.formatTeamData = this.formatTeamData.bind(this);
     this.handleNewUser = this.handleNewUser.bind(this);
+    this.handleTableClick = this.handleTableClick.bind(this);
   }
 
   
@@ -69,7 +72,7 @@ class BaseApp extends Component {
         return res.json();
       })
       .then(res => {
-        //
+        //console.log(res.recordset)
         this.setState({data: res.recordset});
         this.formatData();
       });
@@ -114,7 +117,7 @@ class BaseApp extends Component {
           this.formatTeamData()
         });
     }
-    */
+    */   
   }
 
 
@@ -224,7 +227,7 @@ class BaseApp extends Component {
 
   // callback function for change in data to propogate to sub Components
   handleDataChange = (e) => {
-    //console.log("Changing: ", e);    
+    //console.log("Changing: ", e.target);    
     if (e.data.roster) {
       this.setState({send: e.data.roster});
     }
@@ -235,6 +238,34 @@ class BaseApp extends Component {
 
   handleBack = (e) => {
     this.setState({send: this.state.save, show: false});
+  };
+
+
+  handleTableClick = (e) => {
+    var playerClicked = e.target.innerHTML;
+    // at this point we dont know if a name was clicked, 
+    // so have to check that name (not stats column) was chosen
+    /*
+    this.state.allPlayers.forEach((val, idx) => {
+      if (playerClicked)
+    });
+    */
+    //console.log(this.state.allPlayers);
+    // check if array of objects includes object
+    const player = this.state.allPlayers.find((player) => {
+      if (player.Name === playerClicked) {
+        return player;
+      }
+    })
+    console.log(player);
+    var d = {
+      data: null
+    };
+    //d.data = null;
+    d.data = player;
+    if (player) {
+      this.setState({show: true, popup: d});
+    }
   };
 
 
@@ -342,6 +373,7 @@ class BaseApp extends Component {
                 <LeagueLeadersComp
                   data={this.state.send}
                   players={this.state.allPlayers}
+                  onChange={this.handleTableClick}
                 />                
                 : null
               }
@@ -355,7 +387,7 @@ class BaseApp extends Component {
                 : null
               }
             </div>
-            <div id="top-players-team">
+            <div id="top-players-team" className="col-3">
               {this.state.barClick ?                
                 <RenderTableComponent
                   data={this.state.barClick}
@@ -365,6 +397,7 @@ class BaseApp extends Component {
               }
             </div>
             <div id="team-comparison">
+            <h3 id="team-comp-head">Teams by Points</h3>
               {this.state.teams ?                
                 <TeamComp
                   data={this.state.teams}                  
